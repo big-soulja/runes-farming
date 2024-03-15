@@ -4,22 +4,21 @@ import os
 import time
 import random
 
-ordPath = 'E:\\Bitcoin\\ord-0.15.0\\ord'
+ordPath = 'E:\\Bitcoin\\ord-0.15.0\\ord' #put your path here
 
-# load data from a JSON file
 def load_data_from_json(file_path, key):
     with open(file_path, 'r') as file:
         data = json.load(file)
         return data.get(key, [])
 
 def createWallet(i):
-    result = subprocess.run([ordPath, '--cookie-file', 'E:\\synced\\signet\\.cookie', '-s', 'wallet', '--name', str(i), 'create'], capture_output=True, text=True)
+    result = subprocess.run([ordPath, '-s', 'wallet', '--name', str(i), 'create'], capture_output=True, text=True)
     if result.returncode == 0:
         output_data = json.loads(result.stdout)
         mnemonic = output_data.get("mnemonic")
         print('Creating wallet # ' + str(i))
         print('Mnemonic: ' + mnemonic)
-        result = subprocess.run([ordPath, '--cookie-file', 'E:\\synced\\signet\\.cookie', '-s', 'wallet', '--name', str(i), 'receive'], capture_output=True, text=True)
+        result = subprocess.run([ordPath, '-s', 'wallet', '--name', str(i), 'receive'], capture_output=True, text=True)
         if result.returncode == 0:
             output_data = json.loads(result.stdout)
             address = output_data.get("address")
@@ -42,7 +41,7 @@ def createWallet(i):
                 
                 if checkBalance('vault') > 10500:
                     #fund this wallet from the vault
-                    subprocess.run([ordPath, '--cookie-file', 'E:\\synced\\signet\\.cookie', '-s',  'wallet', '--name', 'vault', 'send', '--fee-rate', '1', address, '10400sats'])
+                    subprocess.run([ordPath, '-s',  'wallet', '--name', 'vault', 'send', '--fee-rate', '1', address, '10400sats'])
                 else:
                     print("Not enough sats in the vault!")              
 
@@ -63,7 +62,7 @@ def createWallet(i):
 def createRune(i):
     if checkBalance(i) > 10200:
         
-        result = subprocess.run([ordPath, '--cookie-file', 'E:\\synced\\signet\\.cookie', '--index-runes', '-s', 'wallet', '--name', str(i), 'etch', '--divisibility', '4', '--fee-rate', '1', '--rune', runeNames[i], '--supply', str(random.randint(1,50)*1000000), '--symbol', symbols[i]], capture_output=True, text=True)
+        result = subprocess.run([ordPath, '--index-runes', '-s', 'wallet', '--name', str(i), 'etch', '--divisibility', '4', '--fee-rate', '1', '--rune', runeNames[i], '--supply', str(random.randint(1,50)*1000000), '--symbol', runeNames[i][0]], capture_output=True, text=True)
         if result.returncode == 0:
             print('Rune ' + runeNames[i] + ' is being etched...')
             
@@ -73,7 +72,7 @@ def createRune(i):
 
 def checkBalance(quary):
 
-    result = subprocess.run([ordPath, '--cookie-file', 'E:\\synced\\signet\\.cookie', '-s',  'wallet', '--name', str(quary), 'balance'], capture_output=True, text=True)
+    result = subprocess.run([ordPath, '-s',  'wallet', '--name', str(quary), 'balance'], capture_output=True, text=True)
 
     if result.returncode == 0:
         output_data = json.loads(result.stdout)
@@ -89,11 +88,7 @@ def checkBalance(quary):
 
 
 rune_names_file = 'rune_names.json'
-symbols_file = 'symbols.json'
-
-
 runeNames = load_data_from_json(rune_names_file, 'runeNames')
-symbols = load_data_from_json(symbols_file, 'symbols')
 
 
 # Check if the JSON file exists, if not, create an empty dictionary
@@ -122,7 +117,7 @@ for i in range(last_index + 1, len(runeNames) - 1):  # Start from last_index + 1
     createRune(i)
 
 def checkRunes(i):
-    result = subprocess.run([ordPath, '--cookie-file', 'E:\\synced\\signet\\.cookie', '-s',  'wallet', '--name', str(i), 'balance'], capture_output=True, text=True)
+    result = subprocess.run([ordPath, '-s',  'wallet', '--name', str(i), 'balance'], capture_output=True, text=True)
 
     if result.returncode == 0:
         # Parse the output as JSON
