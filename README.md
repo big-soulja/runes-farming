@@ -9,7 +9,7 @@ Prerequisites:
 
 Steps:
 1. Clone this repostory to your local machine.
-2. Create wallets.json in the same repository.
+2. Create wallets.json in the same directory.
 3. In command line cd into your ord directory and create a vault wallet with ```ord -s wallet --name vault create```, write down a mnemonic it gives you, then do ```ord -s wallet --name vault recieve```, also write down the address it gives. We need a completely new wallet with no runes or inscriptions in it.
 4. Transfer your signet btc to this address with ```ord -s wallet --name YOURWALLETNAME send --fee-rate 1 VAULTADDRESS XXsats``` and put how many sats you have, can check with ```ord -s wallet balance```, number of cardinals is how many free sats you have.
 5. Come up or generate rune names. They should be unique, get as many as you like. I used this prompt in chatgpt ```come up with 50 1-4 word combinations, all caps with no spaces between. each combination should be 10-25 letters long. Put it as an array called "runeNames" in json file```. Rune names should be unique so you can specify some niche topic in your prompt so yours are really unique. Put your array of rune names into rune_names.json.
