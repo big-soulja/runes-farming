@@ -112,6 +112,9 @@ else:
     last_index = -1  # Start from -1 to include wallet with index 0
 
 for i in range(last_index + 1, len(runeNames) - 1):  # Start from last_index + 1 to include wallet with index 0
+    if checkBalance('vault') < 10500:
+        print("No enough sats in the vault...")
+        break
     createWallet(i)
     time.sleep(10)
     createRune(i)
