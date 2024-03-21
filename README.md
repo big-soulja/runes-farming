@@ -1,13 +1,13 @@
-# runes-farming
+# Runes farming tutorial
 This is a script that creates and funds wallets, etches a rune and moves on. 
 You might need to put ```--cookie-file E:\synced\signet\.cookie``` after ord in all of these commands, plus in subprocess commands in rune-farming.py
 
-Prerequisites:
+# Prerequisites:
 1. Have a running signet node with ord installed https://docs.ordinals.com/guides/wallet.html, there's a good guide by victorbs in tfm.
 2. Have some signet btc. https://signetfaucet.com/ is the go to faucet but not sure if it works.
 3. VSCode or other compiler + python installed. Tutorial: https://www.youtube.com/watch?v=cUAK4x_7thA
 
-Steps:
+# Steps:
 1. Clone this repostory to your local machine.
 2. Create wallets.json in the same directory.
 3. In command line cd into your ord directory and create a vault wallet with ```ord -s wallet --name vault create```, write down a mnemonic it gives you, then do ```ord -s wallet --name vault recieve```, also write down the address it gives. We need a completely new wallet with no runes or inscriptions in it.
