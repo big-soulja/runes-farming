@@ -7,7 +7,7 @@ import create_batch_svg
 import word_list
 
 #path to your ord
-ordPath = 'E:\\Bitcoin\\ord-0.17.1\\ord'
+ordPath = 'E:\\Bitcoin\\ord-0.20.0\\ord'
 #bitcoin network
 network = '-r'
 # 3 words are combined into 1 rune name, pt here as many as you'd like but has to be divisible by 3
