@@ -4,14 +4,14 @@ import os
 import time
 import random
 import create_batch_svg
-import word_list
+from data.wordList import words
 
 #path to your ord
 ordPath = 'E:\\Bitcoin\\ord-0.20.0\\ord'
 #bitcoin network
 network = '-r'
 # 3 words are combined into 1 rune name, pt here as many as you'd like but has to be divisible by 3
-words = word_list.words
+words = words
 
 def createWallet(i):
     result = subprocess.run([ordPath, network, 'wallet', '--name', str(i), 'create'], capture_output=True, text=True)
