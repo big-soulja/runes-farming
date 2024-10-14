@@ -10,17 +10,18 @@ from data.wordList import words
 ordPath = 'E:\\Bitcoin\\daemon\\ord'
 #bitcoin network
 network = '-r'
+datadir = '--datadir=E:\env'
 # 3 words are combined into 1 rune name, pt here as many as you'd like but has to be divisible by 3
 words = words
 
 def createWallet(i):
-    result = subprocess.run([ordPath, network, 'wallet', '--name', str(i), 'create'], capture_output=True, text=True)
+    result = subprocess.run([ordPath, network, datadir, 'wallet', '--name', str(i), 'create'], capture_output=True, text=True)
     if result.returncode == 0:
         output_data = json.loads(result.stdout)
         mnemonic = output_data.get("mnemonic")
         print('Creating wallet # ' + str(i))
         print('Mnemonic: ' + mnemonic)
-        result = subprocess.run([ordPath, network, 'wallet', '--name', str(i), 'receive'], capture_output=True, text=True)
+        result = subprocess.run([ordPath, network, datadir, 'wallet', '--name', str(i), 'receive'], capture_output=True, text=True)
         print(result)
         if result.returncode == 0:
             output_data = json.loads(result.stdout)
@@ -44,7 +45,7 @@ def createWallet(i):
                 
                 if checkBalance('ord') > 21000:
                     #fund this wallet from the ord
-                    subprocess.run([ordPath, network,  'wallet', '--name', 'ord', 'send', '--fee-rate', '1', address, '21000sats'])
+                    subprocess.run([ordPath, network, datadir, 'wallet', '--name', 'ord', 'send', '--fee-rate', '1', address, '21000sats'])
                 else:
                     print("Not enough sats in the vault!")              
 
@@ -67,7 +68,7 @@ def createRune(last_index, i):
         runeNumber = i - last_index
         print('Rune number ' + str(runeNumber) + ' is being etched...')
         create_batch_svg.createBatch(runeNumber, words)
-        result = subprocess.run([ordPath, '--index-runes', network, 'wallet', '--name', str(i), 'batch', '--fee-rate', '1', '--batch', 'D:\\Users\\Администратор\\Documents\\python\\r1b.yaml'], capture_output=True, text=True)
+        result = subprocess.run([ordPath, '--index-runes', network, datadir, 'wallet', '--name', str(i), 'batch', '--fee-rate', '1', '--batch', 'D:\\Users\\Администратор\\Documents\\python\\r1b.yaml'], capture_output=True, text=True)
         print(result)
         if result.returncode == 0:
             output_data = json.loads(result.stdout)
@@ -80,7 +81,7 @@ def createRune(last_index, i):
 
 def checkBalance(quary):
 
-    result = subprocess.run([ordPath, network,  'wallet', '--name', str(quary), 'balance'], capture_output=True, text=True)
+    result = subprocess.run([ordPath, network, datadir, 'wallet', '--name', str(quary), 'balance'], capture_output=True, text=True)
 
     if result.returncode == 0:
         output_data = json.loads(result.stdout)
