@@ -7,7 +7,7 @@ import create_batch_svg
 from data.wordList import words
 
 #path to your ord
-ordPath = 'E:\\Bitcoin\\ord-0.20.0\\ord'
+ordPath = 'E:\\Bitcoin\\daemon\\ord'
 #bitcoin network
 network = '-r'
 # 3 words are combined into 1 rune name, pt here as many as you'd like but has to be divisible by 3
@@ -42,9 +42,9 @@ def createWallet(i):
                 with open('wallets.json', 'w') as f:
                     json.dump(wallets, f, indent=4)
                 
-                if checkBalance('vault') > 21000:
-                    #fund this wallet from the vault
-                    subprocess.run([ordPath, network,  'wallet', '--name', 'vault', 'send', '--fee-rate', '1', address, '21000sats'])
+                if checkBalance('ord') > 21000:
+                    #fund this wallet from the ord
+                    subprocess.run([ordPath, network,  'wallet', '--name', 'ord', 'send', '--fee-rate', '1', address, '21000sats'])
                 else:
                     print("Not enough sats in the vault!")              
 
@@ -118,7 +118,7 @@ def main():
         last_index = -1  # Start from -1 to include wallet with index 0
 
     for i in range(last_index + 1, last_index + int(len(words)/3) - 1):  # Start from last_index + 1 to include wallet with index 0
-        if checkBalance('vault') < 21000:
+        if checkBalance('ord') < 21000:
             print("No enough sats in the vault...")
             break
         createWallet(i)
