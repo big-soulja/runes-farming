@@ -4,24 +4,22 @@ import os
 import time
 import random
 import create_batch_svg
-from data.wordList import words
 
 #path to your ord
-ordPath = 'E:\\Bitcoin\\daemon\\ord'
-#bitcoin network
-network = '-r'
-datadir = '--datadir=E:\env'
+ordPath = 'E:\\Bitcoin\\ord-0.17.1\\ord'
 # 3 words are combined into 1 rune name, pt here as many as you'd like but has to be divisible by 3
-words = words
+words = [
+        "ONE", "TWO", "THREE"
+    ]
 
 def createWallet(i):
-    result = subprocess.run([ordPath, network, datadir, 'wallet', '--name', str(i), 'create'], capture_output=True, text=True)
+    result = subprocess.run([ordPath, '-s', 'wallet', '--name', str(i), 'create'], capture_output=True, text=True)
     if result.returncode == 0:
         output_data = json.loads(result.stdout)
         mnemonic = output_data.get("mnemonic")
         print('Creating wallet # ' + str(i))
         print('Mnemonic: ' + mnemonic)
-        result = subprocess.run([ordPath, network, datadir, 'wallet', '--name', str(i), 'receive'], capture_output=True, text=True)
+        result = subprocess.run([ordPath, '-s', 'wallet', '--name', str(i), 'receive'], capture_output=True, text=True)
         print(result)
         if result.returncode == 0:
             output_data = json.loads(result.stdout)
@@ -43,9 +41,9 @@ def createWallet(i):
                 with open('wallets.json', 'w') as f:
                     json.dump(wallets, f, indent=4)
                 
-                if checkBalance('ord') > 21000:
-                    #fund this wallet from the ord
-                    subprocess.run([ordPath, network, datadir, 'wallet', '--name', 'ord', 'send', '--fee-rate', '1', address, '21000sats'])
+                if checkBalance('vault') > 21000:
+                    #fund this wallet from the vault
+                    subprocess.run([ordPath, '-s',  'wallet', '--name', 'vault', 'send', '--fee-rate', '1', address, '21000sats'])
                 else:
                     print("Not enough sats in the vault!")              
 
@@ -68,7 +66,7 @@ def createRune(last_index, i):
         runeNumber = i - last_index
         print('Rune number ' + str(runeNumber) + ' is being etched...')
         create_batch_svg.createBatch(runeNumber, words)
-        result = subprocess.run([ordPath, '--index-runes', network, datadir, 'wallet', '--name', str(i), 'batch', '--fee-rate', '1', '--batch', 'D:\\Users\\Администратор\\Documents\\python\\r1b.yaml'], capture_output=True, text=True)
+        result = subprocess.run([ordPath, '--index-runes', '-s', 'wallet', '--name', str(i), 'batch', '--fee-rate', '1', '--batch', 'D:\\Users\\Администратор\\Documents\\python\\r1b.yaml'], capture_output=True, text=True)
         print(result)
         if result.returncode == 0:
             output_data = json.loads(result.stdout)
@@ -81,7 +79,7 @@ def createRune(last_index, i):
 
 def checkBalance(quary):
 
-    result = subprocess.run([ordPath, network, datadir, 'wallet', '--name', str(quary), 'balance'], capture_output=True, text=True)
+    result = subprocess.run([ordPath, '-s',  'wallet', '--name', str(quary), 'balance'], capture_output=True, text=True)
 
     if result.returncode == 0:
         output_data = json.loads(result.stdout)
@@ -119,7 +117,7 @@ def main():
         last_index = -1  # Start from -1 to include wallet with index 0
 
     for i in range(last_index + 1, last_index + int(len(words)/3) - 1):  # Start from last_index + 1 to include wallet with index 0
-        if checkBalance('ord') < 21000:
+        if checkBalance('vault') < 21000:
             print("No enough sats in the vault...")
             break
         createWallet(i)
