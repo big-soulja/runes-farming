@@ -45,6 +45,7 @@ def createBatch(i, words):
         file.write(f'    amount: {Nr}\n')
         file.write('    # maximum number of mints\n')
         file.write(f'    cap: {rcap}\n')
+        file.write(f'  turbo: true\n')
         file.write('\n')
         file.write('inscriptions:\n')
         file.write('  # path\n')

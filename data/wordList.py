@@ -1,3 +1,3 @@
 words = [
-    "THIS", "IS", "A", "SAMPLE", "WORD", "LIST", "YOU", "TO", "CHANGE"
+    "THIS", "ISSSSS", "AAAAAA", "SAMPLE", "WORD", "LIST", "YOU", "TOOOOOO", "CHANGE", "BLABLA", "BLABLA", "BLABLA", "BLEBLE", "BLEBLE", "BLEBLE"
 ]
