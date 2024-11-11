@@ -1,6 +1,8 @@
-/__pycache__
+__pycache__/
+data/__pycache__/
 r1.svg
 r1b.yaml
 wallets.json
 create_batch_svg.cpython-312.pyc
 wordList.cpython-312.pyc
+Dockerfile
