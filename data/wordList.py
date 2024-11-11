@@ -1,0 +1,3 @@
+words = [
+    "THIS", "ISSSSS", "AAAAAA", "SAMPLE", "WORD", "LIST", "YOU", "TOOOOOO", "CHANGE", "BLABLA", "BLABLA", "BLABLA", "BLEBLE", "BLEBLE", "BLEBLE"
+]
