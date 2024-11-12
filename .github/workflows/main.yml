@@ -1,51 +1,57 @@
 name: Docker Workflow
 
-# Trigger the workflow on push to the main branch
+# Trigger the workflow on push to any branch
 on:
-  push    
+  push:
+    branches:
+      - main  # Specify branches as needed
 
 jobs:
   run-ord-commands:
     runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Checkout the repository (if needed)
+      # Step 1: Checkout the repository (optional)
       - name: Checkout repository
         uses: actions/checkout@v3
 
       # Step 2: Pull the Docker image from Docker Hub
       - name: Pull Docker image
         run: docker pull bigsoulja/ord-regtest:latest
-        # Replace `your-dockerhub-username/your-image:latest` with your actual image name
 
       # Step 3: Run the Docker container
       - name: Run Docker container
         run: |
           docker run -d --name ord-container bigsoulja/ord-regtest:latest
-        # Replace `your-dockerhub-username/your-image:latest` with your actual image name
 
-      # Step 4: Wait for the server to initialize (adjust as needed)
-      - name: Wait for ord server to start
-        run: sleep 10
-
-      # Step 5: Start ord server inside the container
-      - name: Start ord server inside container
+      # Step 4: Wait for bitcoind and ord server to start
+      - name: Wait for services to initialize
         run: |
-          docker exec -d ord-container ord -r --index-runes server
+          # Implement a loop to check if bitcoind is ready
+          for i in {1..30}; do
+            docker exec ord-container bitcoin-cli -regtest getblockchaininfo && break
+            echo "Waiting for bitcoind to be ready..."
+            sleep 2
+          done
+          # Similarly, check if ord server is ready (if applicable)
+          # Add any additional checks as necessary
 
-      # Step 7: Create wallet named 'vault'
+      # Step 5: Create wallet named 'vault'
       - name: Create vault wallet
         run: docker exec ord-container ord -r wallet --name vault create
 
-      # Step 8: Receive address and generate blocks
+      # Step 6: Receive address and generate blocks
       - name: Generate blocks to vault address
         run: |
           ADDRESS=$(docker exec ord-container ord -r wallet --name vault receive | jq -r '.addresses[0]')
           docker exec ord-container bitcoin-cli -regtest generatetoaddress 100 "$ADDRESS"
 
-      # Step 9: (Optional) Stop and remove the container after the workflow
+      # Step 7: (Optional) Perform additional tasks
+      # Add any other steps you need here
+
+      # Step 8: Clean up Docker container
       - name: Clean up Docker container
         if: always()
         run: |
-          docker stop ord-container
-          docker rm ord-container
+          docker stop ord-container || true
+          docker rm ord-container || true
