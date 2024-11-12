@@ -31,7 +31,7 @@ jobs:
           for i in {1..30}; do
             docker exec ord-container bitcoin-cli -regtest getblockchaininfo && break
             echo "Waiting for bitcoind to be ready..."
-            sleep 2
+            sleep 10
           done
           # Similarly, check if ord server is ready (if applicable)
           # Add any additional checks as necessary
