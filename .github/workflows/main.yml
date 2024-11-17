@@ -1,57 +1,97 @@
-name: Docker Workflow
+name: Run Runes Farming Test
 
-# Trigger the workflow on push to any branch
 on:
-  push:
-    branches:
-      - main  # Specify branches as needed
+  push
 
 jobs:
-  run-ord-commands:
+  test-runes-farming:
     runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Checkout the repository (optional)
+      # Step 1: Checkout the repository
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      # Step 2: Pull the Docker image from Docker Hub
-      - name: Pull Docker image
-        run: docker pull bigsoulja/ord-regtest:latest
+      # Step 2: Set up Docker Buildx (optional, for multi-platform builds)
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
 
-      # Step 3: Run the Docker container
+
+      # Step 4: Build the Docker image
+      - name: Build Docker image
+        run: |
+          docker build -f Dockerfile -t ord-regtest-test .
+
+      # Step 5: Run the Docker container in detached mode
       - name: Run Docker container
         run: |
-          docker run -d --name ord-container bigsoulja/ord-regtest:latest
+          docker run -d --name ord-test-container ord-regtest-test
 
-      # Step 4: Wait for bitcoind and ord server to start
+      # Step 6: Wait for bitcoind and ord server to start
       - name: Wait for services to initialize
         run: |
-          # Implement a loop to check if bitcoind is ready
           for i in {1..30}; do
-            docker exec ord-container bitcoin-cli -regtest getblockchaininfo && break
+            docker exec ord-test-container bitcoin-cli -regtest getblockchaininfo > /dev/null 2>&1 && break
             echo "Waiting for bitcoind to be ready..."
             sleep 10
           done
-          # Similarly, check if ord server is ready (if applicable)
-          # Add any additional checks as necessary
 
-      # Step 5: Create wallet named 'vault'
+          # Optionally, check if ord server is ready
+          for i in {1..30}; do
+            docker exec ord-test-container ord -r wallet --name vault list > /dev/null 2>&1 && break
+            echo "Waiting for ord server to be ready..."
+            sleep 10
+          done
+
+      # Step 7: Create vault wallet
       - name: Create vault wallet
-        run: docker exec ord-container ord -r wallet --name vault create
+        run: docker exec ord-test-container ord -r wallet --name vault create
 
-      # Step 6: Receive address and generate blocks
-      - name: Generate blocks to vault address
+      # Step 8: Receive address and generate initial blocks
+      - name: Generate initial blocks to vault address
         run: |
-          ADDRESS=$(docker exec ord-container ord -r wallet --name vault receive | jq -r '.addresses[0]')
-          docker exec ord-container bitcoin-cli -regtest generatetoaddress 100 "$ADDRESS"
+          ADDRESS=$(docker exec ord-test-container ord -r wallet --name vault receive | jq -r '.addresses[0]')
+          echo "Vault Address: $ADDRESS"
+          docker exec ord-test-container bitcoin-cli -regtest generatetoaddress 100 "$ADDRESS"
 
-      # Step 7: (Optional) Perform additional tasks
-      # Add any other steps you need here
+      # Step 9: Run rune-farming.py and concurrently generate blocks
+      - name: Run rune-farming.py with Bitcoin generator
+        run: |
+          # Start Bitcoin generator in the background inside the container
+          docker exec -d ord-test-container bash -c "while true; do \
+            ADDRESS=\$(ord -r wallet --name vault receive | jq -r '.addresses[0]') && \
+            bitcoin-cli -regtest generatetoaddress 1 \"\$ADDRESS\" && \
+            sleep 1; \
+          done"
 
-      # Step 8: Clean up Docker container
+          # Run rune-farming.py inside the container
+          docker exec ord-test-container python /app/rune-farming.py
+
+          # After script completes, stop the Bitcoin generator by killing the container's bash process
+          # This assumes the generator is running in a separate bash process
+          # Alternatively, you can manage process IDs if more precise control is needed
+          docker exec ord-test-container pkill -f "while true; do"
+
+      # Step 10: Check wallet balance
+      - name: Check wallet balance
+        run: |
+          BALANCE=$(docker exec ord-test-container ord -r wallet --name 1 balance)
+          echo "Wallet Balance: $BALANCE"
+
+          # Extract 'runic' value using jq
+          RUNIC=$(echo "$BALANCE" | jq '.runic')
+          echo "Runic: $RUNIC"
+
+          if [ "$RUNIC" -eq 0 ]; then
+            echo "Runic is 0, test failed."
+            exit 1
+          else
+            echo "Runic is not 0, test passed."
+          fi
+
+      # Step 11: Clean up Docker container
       - name: Clean up Docker container
         if: always()
         run: |
-          docker stop ord-container || true
-          docker rm ord-container || true
+          docker stop ord-test-container || true
+          docker rm ord-test-container || true
