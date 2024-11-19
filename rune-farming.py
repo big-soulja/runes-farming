@@ -125,9 +125,9 @@ def main():
         print(last_index + 1)
         print(last_index + int(len(words)/3) - 1)
         time.sleep(10)
-        if checkBalance('vault') < 21000:
-            print("No enough sats in the vault...")
-            break
+        # if checkBalance('vault') < 21000:
+        #     print("No enough sats in the vault...")
+        #     break
         createWallet(i)
         time.sleep(10)
         createRune(last_index, i)
