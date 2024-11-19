@@ -22,6 +22,7 @@ def createWallet(i):
         mnemonic = output_data.get("mnemonic")
         print('Creating wallet # ' + str(i))
         print('Mnemonic: ' + mnemonic)
+        time.sleep(300)
         result = subprocess.run([ordPath, network, 'wallet', '--name', str(i), 'receive'], capture_output=True, text=True)
         print(result)
         if result.returncode == 0:
