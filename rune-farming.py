@@ -124,6 +124,7 @@ def main():
     for i in range(last_index + 1, last_index + int(len(words)/3) - 1):  # Start from last_index + 1 to include wallet with index 0
         print(last_index + 1)
         print(last_index + int(len(words)/3) - 1)
+        time.sleep(10)
         if checkBalance('vault') < 21000:
             print("No enough sats in the vault...")
             break
